@@ -1,3 +1,5 @@
+--!strict
+
 export type Position =
 	"GK"
 	| "LB"
@@ -13,82 +15,174 @@ export type Position =
 export type Rarity =
 	"Common"
 	| "Rare"
-	| "Elite"
-	| "WorldClass"
+	| "Epic"
+	| "Legendary"
 	| "Icon"
 
-export type Footballer = {
+export type FootballerDefinition = {
 	Id: string,
 	DisplayName: string,
 	Position: Position,
 	Overall: number,
 	Rarity: Rarity,
-	Nation: string,
-	League: string,
-	Club: string,
-	Pace: number,
-	Shooting: number,
-	Passing: number,
-	Dribbling: number,
-	Defending: number,
-	Physical: number,
-	DraftWeight: number,
+
+	-- Higher weight means the footballer appears more frequently.
+	Weight: number,
 }
 
-local Footballers: { [string]: Footballer } = {
-	keeper_001 = {
-		Id = "keeper_001",
-		DisplayName = "Marco Silva",
+local footballers: { FootballerDefinition } = {
+	{
+		Id = "tomas_varga",
+		DisplayName = "Tomas Varga",
 		Position = "GK",
+		Overall = 69,
+		Rarity = "Common",
+		Weight = 100,
+	},
+	{
+		Id = "marco_santos",
+		DisplayName = "Marco Santos",
+		Position = "CB",
+		Overall = 71,
+		Rarity = "Common",
+		Weight = 100,
+	},
+	{
+		Id = "ibrahim_diallo",
+		DisplayName = "Ibrahim Diallo",
+		Position = "LB",
 		Overall = 72,
 		Rarity = "Common",
-		Nation = "Portugal",
-		League = "English League",
-		Club = "London Athletic",
-		Pace = 41,
-		Shooting = 18,
-		Passing = 68,
-		Dribbling = 45,
-		Defending = 73,
-		Physical = 70,
-		DraftWeight = 100,
+		Weight = 100,
 	},
-
-	striker_001 = {
-		Id = "striker_001",
-		DisplayName = "Leo Costa",
-		Position = "ST",
-		Overall = 84,
-		Rarity = "Elite",
-		Nation = "Brazil",
-		League = "Spanish League",
-		Club = "Madrid Royals",
-		Pace = 87,
-		Shooting = 86,
-		Passing = 76,
-		Dribbling = 85,
-		Defending = 31,
-		Physical = 78,
-		DraftWeight = 15,
+	{
+		Id = "luca_bianchi",
+		DisplayName = "Luca Bianchi",
+		Position = "CM",
+		Overall = 73,
+		Rarity = "Common",
+		Weight = 100,
 	},
-
-	winger_001 = {
-		Id = "winger_001",
-		DisplayName = "Jamal Adeyemi",
+	{
+		Id = "kenji_sato",
+		DisplayName = "Kenji Sato",
 		Position = "RW",
+		Overall = 74,
+		Rarity = "Common",
+		Weight = 100,
+	},
+	{
+		Id = "noah_fischer",
+		DisplayName = "Noah Fischer",
+		Position = "ST",
+		Overall = 75,
+		Rarity = "Common",
+		Weight = 100,
+	},
+
+	{
+		Id = "malik_okafor",
+		DisplayName = "Malik Okafor",
+		Position = "CB",
+		Overall = 78,
+		Rarity = "Rare",
+		Weight = 40,
+	},
+	{
+		Id = "enzo_morel",
+		DisplayName = "Enzo Morel",
+		Position = "GK",
+		Overall = 79,
+		Rarity = "Rare",
+		Weight = 40,
+	},
+	{
+		Id = "dario_mensah",
+		DisplayName = "Dario Mensah",
+		Position = "LW",
+		Overall = 80,
+		Rarity = "Rare",
+		Weight = 40,
+	},
+	{
+		Id = "mateo_silva",
+		DisplayName = "Mateo Silva",
+		Position = "CAM",
+		Overall = 81,
+		Rarity = "Rare",
+		Weight = 40,
+	},
+	{
+		Id = "yusuf_demir",
+		DisplayName = "Yusuf Demir",
+		Position = "CDM",
+		Overall = 82,
+		Rarity = "Rare",
+		Weight = 40,
+	},
+
+	{
+		Id = "rafael_costa",
+		DisplayName = "Rafael Costa",
+		Position = "CB",
+		Overall = 85,
+		Rarity = "Epic",
+		Weight = 12,
+	},
+	{
+		Id = "ari_navarro",
+		DisplayName = "Ari Navarro",
+		Position = "CAM",
+		Overall = 86,
+		Rarity = "Epic",
+		Weight = 12,
+	},
+	{
+		Id = "thiago_vale",
+		DisplayName = "Thiago Vale",
+		Position = "ST",
+		Overall = 87,
+		Rarity = "Epic",
+		Weight = 12,
+	},
+	{
+		Id = "andre_kamara",
+		DisplayName = "Andre Kamara",
+		Position = "RW",
+		Overall = 88,
+		Rarity = "Epic",
+		Weight = 12,
+	},
+
+	{
+		Id = "gabriel_montoya",
+		DisplayName = "Gabriel Montoya",
+		Position = "CM",
 		Overall = 91,
-		Rarity = "WorldClass",
-		Nation = "Germany",
-		League = "German League",
-		Club = "Munich Stars",
-		Pace = 96,
-		Shooting = 88,
-		Passing = 87,
-		Dribbling = 94,
-		Defending = 42,
-		Physical = 72,
-		DraftWeight = 3,
+		Rarity = "Legendary",
+		Weight = 3,
+	},
+	{
+		Id = "elias_moreau",
+		DisplayName = "Elias Moreau",
+		Position = "ST",
+		Overall = 92,
+		Rarity = "Legendary",
+		Weight = 3,
+	},
+
+	{
+		Id = "leo_ventura",
+		DisplayName = "Leo Ventura",
+		Position = "RW",
+		Overall = 96,
+		Rarity = "Icon",
+		Weight = 1,
 	},
 }
 
-return table.freeze(Footballers)
+for _, footballer in ipairs(footballers) do
+	table.freeze(footballer)
+end
+
+return table.freeze(footballers)
