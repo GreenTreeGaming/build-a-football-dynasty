@@ -1,0 +1,1 @@
+print("Soccer Dynasty server connected through Rojo!")
