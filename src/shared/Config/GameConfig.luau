@@ -1,19 +1,17 @@
 --!strict
 
 local GameConfig = {
-	StartingCoins = 500,
+	StartingCoins = 1_000,
 	DraftCost = 100,
 
-	-- How many choices the player sees for each squad slot.
-	DraftChoicesPerPick = 3,
+	-- Five mixed-position choices are rolled every round.
+	DraftChoicesPerPick = 5,
 
-	-- Entire draft session lifetime.
+	-- New positions are strongly preferred while still allowing duplicates.
+	PositionDiversityMultiplier = 2.15,
+
 	DraftLifetimeSeconds = 10 * 60,
-
-	-- Prevent spam.
 	DraftRequestCooldownSeconds = 0.75,
-
-	-- Initial formation used by the draft.
 	DefaultFormationId = "F433",
 }
 
