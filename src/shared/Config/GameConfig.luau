@@ -5,7 +5,7 @@ local GameConfig = {
 	DraftCost = 100,
 
 	-- How many choices the player sees for each squad slot.
-	DraftChoicesPerPick = 5,
+	DraftChoicesPerPick = 3,
 
 	-- Entire draft session lifetime.
 	DraftLifetimeSeconds = 10 * 60,

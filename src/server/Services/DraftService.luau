@@ -151,48 +151,17 @@ local function isCompatible(slotPosition: string, footballerPosition: string): b
 	return table.find(compatible, footballerPosition) ~= nil
 end
 
-local function buildCandidatePool(slotPosition: string, excludedIds: { [string]: boolean }): { any }
-	local exact = {}
-	local compatible = {}
-	local fallback = {}
-	local seen: { [string]: boolean } = {}
-
-	for _, footballer in ipairs(Footballers) do
-		if not excludedIds[footballer.Id] then
-			table.insert(fallback, footballer)
-
-			if footballer.Position == slotPosition then
-				table.insert(exact, footballer)
-				seen[footballer.Id] = true
-			end
-		end
-	end
-
-	for _, footballer in ipairs(Footballers) do
-		if not excludedIds[footballer.Id] and not seen[footballer.Id] then
-			if isCompatible(slotPosition, footballer.Position) then
-				table.insert(compatible, footballer)
-				seen[footballer.Id] = true
-			end
-		end
-	end
-
+local function buildCandidatePool(
+	slotPosition: string,
+	excludedIds: { [string]: boolean }
+): { any }
 	local pool = {}
 
-	for _, footballer in ipairs(exact) do
-		table.insert(pool, footballer)
-	end
-
-	for _, footballer in ipairs(compatible) do
-		table.insert(pool, footballer)
-	end
-
-	if #pool < GameConfig.DraftChoicesPerPick then
-		for _, footballer in ipairs(fallback) do
-			if not seen[footballer.Id] then
-				table.insert(pool, footballer)
-				seen[footballer.Id] = true
-			end
+	for _, footballer in ipairs(Footballers) do
+		if footballer.Position == slotPosition
+			and not excludedIds[footballer.Id]
+		then
+			table.insert(pool, footballer)
 		end
 	end
 
@@ -214,17 +183,7 @@ local function buildOptionsForSlot(draft: DraftSession, slotPosition: string): {
 		candidates,
 		GameConfig.DraftChoicesPerPick,
 		function(footballer)
-			local baseWeight = footballer.Weight or 1
-
-			if footballer.Position == slotPosition then
-				return baseWeight * 3
-			end
-
-			if isCompatible(slotPosition, footballer.Position) then
-				return baseWeight * 1.5
-			end
-
-			return baseWeight * 0.35
+			return footballer.Weight or 1
 		end,
 		random
 	)

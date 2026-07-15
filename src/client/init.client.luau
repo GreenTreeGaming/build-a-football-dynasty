@@ -23,11 +23,6 @@ if existingGui then
     existingGui:Destroy()
 end
 
-local footballersById: { [string]: any } = {}
-for _, footballer in ipairs(Footballers) do
-    footballersById[footballer.Id] = footballer
-end
-
 local RARITY_THEME = {
     Common = {
         Primary = Color3.fromRGB(80, 90, 110),
@@ -87,15 +82,6 @@ local function addStroke(target: Instance, color: Color3, thickness: number, tra
     }, target)
 end
 
-local function addPadding(target: Instance, left: number, right: number, top: number, bottom: number)
-    create("UIPadding", {
-        PaddingLeft = UDim.new(0, left),
-        PaddingRight = UDim.new(0, right),
-        PaddingTop = UDim.new(0, top),
-        PaddingBottom = UDim.new(0, bottom),
-    }, target)
-end
-
 local function addGradient(target: Instance, colorA: Color3, colorB: Color3, rotation: number?)
     local gradient = create("UIGradient", {
         Rotation = rotation or 90,
@@ -144,7 +130,7 @@ end
 local screenGui = create("ScreenGui", {
     Name = "DraftPrototype",
     ResetOnSpawn = false,
-    IgnoreGuiInset = true,
+    IgnoreGuiInset = false,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 }, playerGui)
 
@@ -187,7 +173,7 @@ local subtitleLabel = create("TextLabel", {
 local coinsLabel = create("TextLabel", {
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(1, 0),
-    Position = UDim2.new(1, -24, 16, 0),
+    Position = UDim2.new(1, -24, 0, 16),
     Size = UDim2.fromOffset(220, 28),
     Font = Enum.Font.GothamBold,
     Text = "Coins: ...",
@@ -199,7 +185,7 @@ local coinsLabel = create("TextLabel", {
 local clubSummaryLabel = create("TextLabel", {
     BackgroundTransparency = 1,
     AnchorPoint = Vector2.new(1, 0),
-    Position = UDim2.new(1, -24, 44, 0),
+    Position = UDim2.new(1, -24, 0, 44),
     Size = UDim2.fromOffset(320, 20),
     Font = Enum.Font.Gotham,
     Text = "Club loading...",
@@ -211,27 +197,41 @@ local clubSummaryLabel = create("TextLabel", {
 local topArea = create("Frame", {
     Name = "TopArea",
     Position = UDim2.fromOffset(0, 76),
-    Size = UDim2.new(1, 0, 0.58, 0),
+    Size = UDim2.new(1, 0, 0.57, -76),
     BackgroundTransparency = 1,
 }, background)
 
 local pitchPanel = create("Frame", {
     Name = "PitchPanel",
-    Position = UDim2.fromOffset(22, 18),
-    Size = UDim2.new(0.60, -32, 1, -36),
-    BackgroundColor3 = Color3.fromRGB(15, 79, 40),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    Size = UDim2.new(1, -72, 1, -34),
+    BackgroundColor3 = Color3.fromRGB(10, 74, 36),
     BorderSizePixel = 0,
 }, topArea)
+
 addCorner(pitchPanel, 18)
-addStroke(pitchPanel, Color3.fromRGB(255, 255, 255), 1, 0.88)
-addGradient(pitchPanel, Color3.fromRGB(17, 92, 47), Color3.fromRGB(8, 54, 26), 90)
+
+addStroke(
+    pitchPanel,
+    Color3.fromRGB(167, 204, 175),
+    2,
+    0.5
+)
+
+addGradient(
+    pitchPanel,
+    Color3.fromRGB(13, 92, 45),
+    Color3.fromRGB(6, 50, 25),
+    90
+)
 
 local pitchInner = create("Frame", {
     Name = "PitchInner",
-    Position = UDim2.fromOffset(14, 14),
-    Size = UDim2.new(1, -28, 1, -28),
+    Position = UDim2.fromOffset(24, 18),
+    Size = UDim2.new(1, -48, 1, -36),
     BackgroundTransparency = 1,
-    ClipsDescendants = true,
+    ClipsDescendants = false,
 }, pitchPanel)
 
 local function createPitchLine(props: { [string]: any })
@@ -297,170 +297,89 @@ local bottomBox = create("Frame", {
 }, pitchInner)
 addStroke(bottomBox, Color3.fromRGB(255, 255, 255), 2, 0.55)
 
-local sidePanel = create("Frame", {
-    Name = "SidePanel",
-    AnchorPoint = Vector2.new(1, 0),
-    Position = UDim2.new(1, -22, 18, 0),
-    Size = UDim2.new(0.40, -12, 1, -36),
-    BackgroundColor3 = Color3.fromRGB(18, 24, 36),
-    BorderSizePixel = 0,
-}, topArea)
-addCorner(sidePanel, 18)
-addStroke(sidePanel, Color3.fromRGB(255, 255, 255), 1, 0.92)
-
-local formationLabel = create("TextLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(18, 16),
-    Size = UDim2.new(1, -36, 0, 26),
-    Font = Enum.Font.GothamBold,
-    Text = "FORMATION: 4-3-3",
-    TextColor3 = Color3.fromRGB(250, 250, 250),
-    TextSize = 19,
-    TextXAlignment = Enum.TextXAlignment.Left,
-}, sidePanel)
-
-local draftStatusLabel = create("TextLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(18, 46),
-    Size = UDim2.new(1, -36, 0, 50),
-    Font = Enum.Font.Gotham,
-    Text = "Open a draft to begin building your XI.",
-    TextColor3 = Color3.fromRGB(188, 198, 216),
-    TextSize = 15,
-    TextWrapped = true,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    TextYAlignment = Enum.TextYAlignment.Top,
-}, sidePanel)
-
-local actionButton = create("TextButton", {
-    Position = UDim2.fromOffset(18, 106),
-    Size = UDim2.new(1, -36, 0, 46),
-    BackgroundColor3 = Color3.fromRGB(42, 164, 98),
-    BorderSizePixel = 0,
-    Font = Enum.Font.GothamBold,
-    Text = string.format("START 11-PLAYER DRAFT — %d COINS", GameConfig.DraftCost),
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 15,
-}, sidePanel)
-addCorner(actionButton, 10)
-
-local noteLabel = create("TextLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(18, 162),
-    Size = UDim2.new(1, -36, 0, 48),
-    Font = Enum.Font.Gotham,
-    Text = "Each pick fills one slot on the pitch. The highlighted slot is the current position being drafted.",
-    TextColor3 = Color3.fromRGB(154, 167, 187),
-    TextSize = 13,
-    TextWrapped = true,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    TextYAlignment = Enum.TextYAlignment.Top,
-}, sidePanel)
-
-local currentPickTitle = create("TextLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(18, 220),
-    Size = UDim2.new(1, -36, 0, 24),
-    Font = Enum.Font.GothamBold,
-    Text = "CURRENT PICK",
-    TextColor3 = Color3.fromRGB(250, 250, 250),
-    TextSize = 16,
-    TextXAlignment = Enum.TextXAlignment.Left,
-}, sidePanel)
-
-local currentPickCardHost = create("Frame", {
-    Position = UDim2.fromOffset(18, 250),
-    Size = UDim2.new(1, -36, 0, 180),
-    BackgroundColor3 = Color3.fromRGB(23, 31, 46),
-    BorderSizePixel = 0,
-}, sidePanel)
-addCorner(currentPickCardHost, 14)
-
-local currentPickMessage = create("TextLabel", {
-    BackgroundTransparency = 1,
-    Size = UDim2.new(1, 0, 1, 0),
-    Font = Enum.Font.GothamBold,
-    Text = "No draft active",
-    TextColor3 = Color3.fromRGB(186, 198, 216),
-    TextSize = 18,
-    TextWrapped = true,
-}, currentPickCardHost)
-
-local recentClubTitle = create("TextLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(18, 442),
-    Size = UDim2.new(1, -36, 0, 22),
-    Font = Enum.Font.GothamBold,
-    Text = "RECENT CLUB PLAYERS",
-    TextColor3 = Color3.fromRGB(250, 250, 250),
-    TextSize = 15,
-    TextXAlignment = Enum.TextXAlignment.Left,
-}, sidePanel)
-
-local recentClubLabel = create("TextLabel", {
-    Position = UDim2.fromOffset(18, 470),
-    Size = UDim2.new(1, -36, 1, -488),
-    BackgroundColor3 = Color3.fromRGB(23, 31, 46),
-    BorderSizePixel = 0,
-    Font = Enum.Font.Gotham,
-    Text = "No players owned yet.",
-    TextColor3 = Color3.fromRGB(202, 209, 223),
-    TextSize = 14,
-    TextWrapped = true,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    TextYAlignment = Enum.TextYAlignment.Top,
-}, sidePanel)
-addCorner(recentClubLabel, 12)
-addPadding(recentClubLabel, 12, 12, 10, 10)
-
 local bottomArea = create("Frame", {
     Name = "BottomArea",
-    AnchorPoint = Vector2.new(0.5, 1),
-    Position = UDim2.fromScale(0.5, 1),
-    Size = UDim2.new(1, 0, 0.42, 0),
-    BackgroundColor3 = Color3.fromRGB(12, 17, 27),
+    Position = UDim2.fromScale(0, 0.57),
+    Size = UDim2.new(1, 0, 0.43, 0),
+    BackgroundColor3 = Color3.fromRGB(10, 15, 24),
     BorderSizePixel = 0,
 }, background)
 
+local draftInfoBar = create("Frame", {
+    Name = "DraftInfoBar",
+    Position = UDim2.fromOffset(34, 14),
+    Size = UDim2.new(1, -68, 0, 48),
+    BackgroundColor3 = Color3.fromRGB(20, 27, 40),
+    BorderSizePixel = 0,
+}, bottomArea)
+
+addCorner(draftInfoBar, 12)
+
 local optionsHeader = create("TextLabel", {
     BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(22, 12),
-    Size = UDim2.new(1, -44, 0, 26),
+    Position = UDim2.fromOffset(16, 5),
+    Size = UDim2.new(0.55, -16, 0, 22),
+
     Font = Enum.Font.GothamBold,
-    Text = "DRAFT OPTIONS",
+    Text = "START YOUR DRAFT",
     TextColor3 = Color3.fromRGB(250, 250, 250),
-    TextSize = 18,
+    TextSize = 16,
     TextXAlignment = Enum.TextXAlignment.Left,
-}, bottomArea)
+}, draftInfoBar)
 
 local optionsSubheader = create("TextLabel", {
     BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(22, 38),
-    Size = UDim2.new(1, -44, 0, 20),
+    Position = UDim2.fromOffset(16, 26),
+    Size = UDim2.new(0.7, -16, 0, 16),
+
     Font = Enum.Font.Gotham,
-    Text = "Choose one player card for the highlighted pitch slot.",
-    TextColor3 = Color3.fromRGB(168, 179, 197),
-    TextSize = 13,
+    Text = "Choose a footballer for each position.",
+    TextColor3 = Color3.fromRGB(162, 174, 194),
+    TextSize = 12,
     TextXAlignment = Enum.TextXAlignment.Left,
-}, bottomArea)
+}, draftInfoBar)
 
-local optionsScroller = create("ScrollingFrame", {
-    Position = UDim2.fromOffset(18, 70),
-    Size = UDim2.new(1, -36, 1, -84),
-    BackgroundTransparency = 1,
+local actionButton = create("TextButton", {
+    AnchorPoint = Vector2.new(1, 0.5),
+    Position = UDim2.new(1, -8, 0.5, 0),
+    Size = UDim2.fromOffset(260, 34),
+
+    BackgroundColor3 = Color3.fromRGB(44, 178, 105),
     BorderSizePixel = 0,
-    ScrollBarThickness = 6,
-    CanvasSize = UDim2.fromOffset(0, 0),
-    ScrollingDirection = Enum.ScrollingDirection.X,
-    AutomaticCanvasSize = Enum.AutomaticSize.None,
+
+    Font = Enum.Font.GothamBold,
+    Text = string.format(
+        "START DRAFT — %d COINS",
+        GameConfig.DraftCost
+    ),
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    TextSize = 13,
+}, draftInfoBar)
+
+addCorner(actionButton, 9)
+
+local optionsContainer = create("Frame", {
+    Name = "OptionsContainer",
+    Position = UDim2.fromOffset(34, 74),
+    Size = UDim2.new(1, -68, 1, -88),
+    BackgroundTransparency = 1,
 }, bottomArea)
 
-local optionsLayout = create("UIListLayout", {
+local optionsLayout = create("UIGridLayout", {
+    CellPadding = UDim2.fromOffset(14, 0),
+    CellSize = UDim2.new(
+        1 / GameConfig.DraftChoicesPerPick,
+        -10,
+        1,
+        0
+    ),
+
     FillDirection = Enum.FillDirection.Horizontal,
-    HorizontalAlignment = Enum.HorizontalAlignment.Left,
+    FillDirectionMaxCells = GameConfig.DraftChoicesPerPick,
+    HorizontalAlignment = Enum.HorizontalAlignment.Center,
     VerticalAlignment = Enum.VerticalAlignment.Center,
-    Padding = UDim.new(0, 14),
-}, optionsScroller)
+    SortOrder = Enum.SortOrder.LayoutOrder,
+}, optionsContainer)
 
 local pitchSlotFrames: { [string]: Frame } = {}
 local currentDraft: any = nil
@@ -474,28 +393,7 @@ local function setBusy(value: boolean)
 end
 
 local function setStatusText(text: string)
-    draftStatusLabel.Text = text
-end
-
-local function buildInventorySummary(profile: any): string
-    local inventory = profile and profile.Inventory
-
-    if typeof(inventory) ~= "table" or #inventory == 0 then
-        return "No players owned yet."
-    end
-
-    local parts = {}
-    local startIndex = math.max(1, #inventory - 5)
-
-    for index = #inventory, startIndex, -1 do
-        local owned = inventory[index]
-        local definition = footballersById[owned.FootballerId]
-        if definition then
-            table.insert(parts, string.format("• %s (%s %d)", definition.DisplayName, definition.Position, definition.Overall))
-        end
-    end
-
-    return table.concat(parts, "\n")
+    optionsSubheader.Text = text
 end
 
 local function renderProfile(profile: any)
@@ -512,8 +410,10 @@ local function renderProfile(profile: any)
     end
 
     coinsLabel.Text = string.format("Coins: %d", coins)
-    clubSummaryLabel.Text = string.format("Club players owned: %d", inventoryCount)
-    recentClubLabel.Text = buildInventorySummary(profile)
+    clubSummaryLabel.Text = string.format(
+        "Club players owned: %d",
+        inventoryCount
+    )
 end
 
 local function clearPitchSlots()
@@ -523,367 +423,246 @@ local function clearPitchSlots()
     pitchSlotFrames = {}
 end
 
-local function createPitchSlot(slotInfo: any, formationSlot: any, isActive: boolean)
+local function createPitchSlot(
+    slotInfo: any,
+    formationSlot: any,
+    isActive: boolean
+)
     local selected = slotInfo.Selected
+
     local slotFrame = create("Frame", {
         Name = slotInfo.SlotKey,
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.fromScale(formationSlot.X, formationSlot.Y),
-        Size = UDim2.fromOffset(92, 92),
-        BackgroundColor3 = if selected then Color3.fromRGB(25, 34, 52) else Color3.fromRGB(17, 28, 20),
+        Position = UDim2.fromScale(
+            formationSlot.X,
+            formationSlot.Y
+        ),
+        Size = UDim2.fromOffset(66, 78),
+
+        BackgroundColor3 = if selected
+            then Color3.fromRGB(26, 36, 50)
+            else Color3.fromRGB(12, 30, 18),
+
+        BackgroundTransparency = if selected then 0 else 0.18,
         BorderSizePixel = 0,
     }, pitchInner)
-    addCorner(slotFrame, 16)
 
-    if selected then
-        addStroke(
-            slotFrame,
-            if isActive then Color3.fromRGB(255, 215, 98) else Color3.fromRGB(100, 134, 190),
-            if isActive then 3 else 2,
-            0
-        )
-    else
-        addStroke(
-            slotFrame,
-            if isActive then Color3.fromRGB(255, 215, 98) else Color3.fromRGB(255, 255, 255),
-            if isActive then 3 else 1,
-            if isActive then 0 else 0.75
-        )
-    end
+    addCorner(slotFrame, 12)
 
-    local topLabel = create("TextLabel", {
+    addStroke(
+        slotFrame,
+        if isActive
+            then Color3.fromRGB(255, 214, 75)
+            else Color3.fromRGB(205, 220, 210),
+        if isActive then 3 else 1,
+        if isActive then 0 else 0.45
+    )
+
+    create("TextLabel", {
         BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(8, 6),
-        Size = UDim2.new(1, -16, 0, 16),
+        Position = UDim2.fromOffset(6, 5),
+        Size = UDim2.new(1, -12, 0, 14),
+
         Font = Enum.Font.GothamBold,
         Text = slotInfo.Label,
-        TextColor3 = Color3.fromRGB(240, 245, 250),
-        TextSize = 12,
+        TextColor3 = Color3.fromRGB(225, 234, 227),
+        TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left,
     }, slotFrame)
 
     if selected then
-        local overallLabel = create("TextLabel", {
+        create("TextLabel", {
             BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(8, 24),
-            Size = UDim2.new(1, -16, 0, 24),
+            Position = UDim2.fromOffset(6, 20),
+            Size = UDim2.new(1, -12, 0, 25),
+
             Font = Enum.Font.GothamBlack,
             Text = tostring(selected.Overall),
-            TextColor3 = Color3.fromRGB(255, 236, 153),
-            TextSize = 24,
-            TextXAlignment = Enum.TextXAlignment.Left,
+            TextColor3 = Color3.fromRGB(255, 226, 115),
+            TextSize = 22,
         }, slotFrame)
 
-        local nameLabel = create("TextLabel", {
+        create("TextLabel", {
             BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(8, 50),
-            Size = UDim2.new(1, -16, 0, 30),
-            Font = Enum.Font.Gotham,
+            Position = UDim2.fromOffset(5, 47),
+            Size = UDim2.new(1, -10, 0, 24),
+
+            Font = Enum.Font.GothamMedium,
             Text = selected.DisplayName,
-            TextColor3 = Color3.fromRGB(230, 235, 245),
-            TextSize = 11,
+            TextColor3 = Color3.fromRGB(245, 247, 250),
+            TextSize = 9,
             TextWrapped = true,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextYAlignment = Enum.TextYAlignment.Top,
         }, slotFrame)
     else
-        local placeholderLabel = create("TextLabel", {
+        create("TextLabel", {
             BackgroundTransparency = 1,
             AnchorPoint = Vector2.new(0.5, 0.5),
             Position = UDim2.fromScale(0.5, 0.58),
-            Size = UDim2.new(1, -12, 0, 40),
-            Font = Enum.Font.GothamBold,
+            Size = UDim2.new(1, -10, 0, 30),
+
+            Font = Enum.Font.GothamBlack,
             Text = slotInfo.Position,
-            TextColor3 = Color3.fromRGB(218, 228, 220),
-            TextSize = 26,
-            TextTransparency = 0.12,
+            TextColor3 = Color3.fromRGB(213, 227, 216),
+            TextSize = 18,
         }, slotFrame)
     end
 
     pitchSlotFrames[slotInfo.SlotKey] = slotFrame
 end
 
-local function createCurrentPickCard(slotLabel: string, position: string)
-    currentPickCardHost:ClearAllChildren()
-    addCorner(currentPickCardHost, 14)
+local function renderEmptyFormation()
+    local formation =
+        Formations[GameConfig.DefaultFormationId]
 
-    local glow = create("Frame", {
-        BackgroundColor3 = Color3.fromRGB(42, 164, 98),
-        BackgroundTransparency = 0.82,
-        Size = UDim2.new(1, 0, 1, 0),
-        BorderSizePixel = 0,
-    }, currentPickCardHost)
-    addCorner(glow, 14)
+    if not formation then
+        warn(
+            "Default formation is missing:",
+            GameConfig.DefaultFormationId
+        )
+        return
+    end
 
-    create("TextLabel", {
-        BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(16, 14),
-        Size = UDim2.new(1, -32, 0, 22),
-        Font = Enum.Font.GothamBold,
-        Text = "NOW DRAFTING",
-        TextColor3 = Color3.fromRGB(174, 224, 194),
-        TextSize = 13,
-        TextXAlignment = Enum.TextXAlignment.Left,
-    }, currentPickCardHost)
+    clearPitchSlots()
 
-    create("TextLabel", {
-        BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(16, 40),
-        Size = UDim2.new(1, -32, 0, 34),
-        Font = Enum.Font.GothamBlack,
-        Text = slotLabel,
-        TextColor3 = Color3.fromRGB(250, 250, 250),
-        TextSize = 28,
-        TextXAlignment = Enum.TextXAlignment.Left,
-    }, currentPickCardHost)
-
-    create("TextLabel", {
-        BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(16, 80),
-        Size = UDim2.new(1, -32, 0, 26),
-        Font = Enum.Font.GothamBold,
-        Text = "Position requirement: " .. position,
-        TextColor3 = Color3.fromRGB(221, 229, 240),
-        TextSize = 16,
-        TextXAlignment = Enum.TextXAlignment.Left,
-    }, currentPickCardHost)
-
-    create("TextLabel", {
-        BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(16, 112),
-        Size = UDim2.new(1, -32, 0, 42),
-        Font = Enum.Font.Gotham,
-        Text = "Pick one of the cards below. The selected player will immediately fill this slot on the pitch.",
-        TextColor3 = Color3.fromRGB(181, 192, 210),
-        TextSize = 14,
-        TextWrapped = true,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top,
-    }, currentPickCardHost)
+    for _, formationSlot in ipairs(formation.Slots) do
+        createPitchSlot({
+            SlotKey = formationSlot.Key,
+            Label = formationSlot.Label,
+            Position = formationSlot.Position,
+            Selected = nil,
+        }, formationSlot, false)
+    end
 end
 
 local function clearOptions()
-    for _, child in ipairs(optionsScroller:GetChildren()) do
+    for _, child in ipairs(optionsContainer:GetChildren()) do
         if child:IsA("Frame") or child:IsA("TextButton") then
             child:Destroy()
         end
     end
 end
 
-local function updateScrollerCanvas()
-    optionsScroller.CanvasSize = UDim2.fromOffset(
-        optionsLayout.AbsoluteContentSize.X + 12,
-        0
-    )
-end
-
-optionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateScrollerCanvas)
-
-local function createStatPill(parent: Instance, text: string, backgroundColor: Color3)
-    local pill = create("Frame", {
-        BackgroundColor3 = backgroundColor,
-        BackgroundTransparency = 0.08,
-        BorderSizePixel = 0,
-        Size = UDim2.fromOffset(72, 24),
-    }, parent)
-    addCorner(pill, 999)
-
-    create("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.fromScale(1, 1),
-        Font = Enum.Font.GothamBold,
-        Text = text,
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 11,
-    }, pill)
-
-    return pill
-end
-
 local function renderCardOption(card: any)
     local theme = getTheme(card.Rarity)
 
     local cardButton = create("TextButton", {
-        Size = UDim2.fromOffset(214, 286),
         BackgroundColor3 = theme.Primary,
         BorderSizePixel = 0,
         Text = "",
         AutoButtonColor = true,
-    }, optionsScroller)
-    addCorner(cardButton, 20)
-    addStroke(cardButton, theme.Accent, 2, 0.18)
-    addGradient(cardButton, theme.Primary, theme.Secondary, 135)
+    }, optionsContainer)
 
-    local shine = create("Frame", {
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.fromScale(0.5, 0.02),
-        Size = UDim2.new(0.82, 0, 0.18, 0),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 0.88,
+    addCorner(cardButton, 16)
+    addStroke(cardButton, theme.Accent, 2, 0.22)
+    addGradient(
+        cardButton,
+        theme.Primary,
+        theme.Secondary,
+        135
+    )
+
+    local glow = create("Frame", {
+        Position = UDim2.fromScale(0.06, 0.04),
+        Size = UDim2.fromScale(0.88, 0.2),
+        BackgroundColor3 = theme.Accent,
+        BackgroundTransparency = 0.8,
         BorderSizePixel = 0,
     }, cardButton)
-    addCorner(shine, 999)
 
-    local overallBadge = create("Frame", {
-        Position = UDim2.fromOffset(12, 12),
-        Size = UDim2.fromOffset(58, 58),
-        BackgroundColor3 = Color3.fromRGB(255, 244, 204),
-        BorderSizePixel = 0,
-    }, cardButton)
-    addCorner(overallBadge, 16)
+    addCorner(glow, 999)
 
     create("TextLabel", {
         BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(0, 6),
-        Size = UDim2.new(1, 0, 0, 22),
+        Position = UDim2.fromScale(0.07, 0.05),
+        Size = UDim2.fromScale(0.28, 0.18),
+
         Font = Enum.Font.GothamBlack,
         Text = tostring(card.Overall),
-        TextColor3 = Color3.fromRGB(49, 38, 8),
-        TextSize = 24,
-    }, overallBadge)
-
-    create("TextLabel", {
-        BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(0, 31),
-        Size = UDim2.new(1, 0, 0, 18),
-        Font = Enum.Font.GothamBold,
-        Text = "OVR",
-        TextColor3 = Color3.fromRGB(72, 56, 17),
-        TextSize = 12,
-    }, overallBadge)
-
-    local positionBadge = create("Frame", {
-        AnchorPoint = Vector2.new(1, 0),
-        Position = UDim2.new(1, -12, 12, 0),
-        Size = UDim2.fromOffset(54, 30),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 0.84,
-        BorderSizePixel = 0,
+        TextColor3 = Color3.fromRGB(255, 244, 207),
+        TextSize = 30,
+        TextXAlignment = Enum.TextXAlignment.Left,
     }, cardButton)
-    addCorner(positionBadge, 999)
 
     create("TextLabel", {
         BackgroundTransparency = 1,
-        Size = UDim2.fromScale(1, 1),
+        AnchorPoint = Vector2.new(1, 0),
+        Position = UDim2.fromScale(0.93, 0.07),
+        Size = UDim2.fromScale(0.28, 0.12),
+
         Font = Enum.Font.GothamBold,
         Text = card.Position,
         TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 14,
-    }, positionBadge)
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Right,
+    }, cardButton)
 
-    local rarityBadge = create("Frame", {
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.fromScale(0.5, 0.11),
-        Size = UDim2.fromOffset(112, 24),
+    local portrait = create("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.43),
+        Size = UDim2.fromScale(0.52, 0.42),
+
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 0.84,
+        BackgroundTransparency = 0.85,
         BorderSizePixel = 0,
     }, cardButton)
-    addCorner(rarityBadge, 999)
+
+    addCorner(portrait, 999)
+    addStroke(portrait, theme.Accent, 2, 0.35)
 
     create("TextLabel", {
         BackgroundTransparency = 1,
         Size = UDim2.fromScale(1, 1),
-        Font = Enum.Font.GothamBold,
-        Text = string.upper(card.Rarity),
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 11,
-    }, rarityBadge)
 
-    local portraitRing = create("Frame", {
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.fromScale(0.5, 0.22),
-        Size = UDim2.fromOffset(112, 112),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 0.86,
-        BorderSizePixel = 0,
-    }, cardButton)
-    addCorner(portraitRing, 999)
-    addStroke(portraitRing, theme.Accent, 2, 0.35)
-
-    create("TextLabel", {
-        BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(0, 8),
-        Size = UDim2.new(1, 0, 0, 76),
         Font = Enum.Font.GothamBlack,
         Text = getInitials(card.DisplayName),
         TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextTransparency = 0.08,
-        TextSize = 44,
-    }, portraitRing)
+        TextSize = 38,
+    }, portrait)
 
     create("TextLabel", {
         BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(18, 148),
-        Size = UDim2.new(1, -36, 0, 22),
-        Font = Enum.Font.GothamBlack,
+        Position = UDim2.fromScale(0.06, 0.67),
+        Size = UDim2.fromScale(0.88, 0.1),
+
+        Font = Enum.Font.GothamBold,
         Text = card.DisplayName,
         TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 19,
-        TextWrapped = true,
+        TextSize = 15,
+        TextScaled = true,
     }, cardButton)
 
     create("TextLabel", {
         BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(18, 172),
-        Size = UDim2.new(1, -36, 0, 18),
-        Font = Enum.Font.Gotham,
-        Text = string.format("%s  •  %s", card.Position, card.Rarity),
-        TextColor3 = Color3.fromRGB(235, 239, 245),
-        TextSize = 12,
-    }, cardButton)
+        Position = UDim2.fromScale(0.06, 0.77),
+        Size = UDim2.fromScale(0.88, 0.07),
 
-    local metaLine = table.concat({
-        card.Nation or "Unknown Nation",
-        card.Club or "Free Agent",
-    }, "  •  ")
-
-    create("TextLabel", {
-        BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(18, 194),
-        Size = UDim2.new(1, -36, 0, 18),
         Font = Enum.Font.Gotham,
-        Text = metaLine,
-        TextColor3 = Color3.fromRGB(214, 222, 233),
+        Text = string.upper(card.Rarity),
+        TextColor3 = theme.Accent,
         TextSize = 11,
-        TextWrapped = true,
     }, cardButton)
 
-    local statsRow = create("Frame", {
-        Position = UDim2.fromOffset(16, 220),
-        Size = UDim2.new(1, -32, 0, 26),
-        BackgroundTransparency = 1,
-    }, cardButton)
-
-    local statsLayout = create("UIListLayout", {
-        FillDirection = Enum.FillDirection.Horizontal,
-        Padding = UDim.new(0, 6),
-        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-        VerticalAlignment = Enum.VerticalAlignment.Center,
-    }, statsRow)
-
-    createStatPill(statsRow, tostring(card.Overall) .. " OVR", Color3.fromRGB(255, 255, 255))
-    createStatPill(statsRow, card.Position, Color3.fromRGB(255, 255, 255))
-    createStatPill(statsRow, card.Rarity, Color3.fromRGB(255, 255, 255))
-
-    local chooseButton = create("Frame", {
+    local selectBar = create("Frame", {
         AnchorPoint = Vector2.new(0.5, 1),
-        Position = UDim2.fromScale(0.5, 0.96),
-        Size = UDim2.new(1, -32, 0, 34),
+        Position = UDim2.fromScale(0.5, 0.95),
+        Size = UDim2.fromScale(0.86, 0.11),
+
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 0.1,
+        BackgroundTransparency = 0.08,
         BorderSizePixel = 0,
     }, cardButton)
-    addCorner(chooseButton, 12)
+
+    addCorner(selectBar, 9)
 
     create("TextLabel", {
         BackgroundTransparency = 1,
         Size = UDim2.fromScale(1, 1),
+
         Font = Enum.Font.GothamBold,
-        Text = "CHOOSE PLAYER",
+        Text = "SELECT",
         TextColor3 = theme.Secondary,
-        TextSize = 14,
-    }, chooseButton)
+        TextSize = 12,
+    }, selectBar)
 
     cardButton.Activated:Connect(function()
         if busy or not currentDraft then
@@ -891,7 +670,9 @@ local function renderCardOption(card: any)
         end
 
         setBusy(true)
-        setStatusText("Signing " .. card.DisplayName .. "...")
+        setStatusText(
+            "Signing " .. card.DisplayName .. "..."
+        )
 
         local requestSucceeded, response = invokeServer(
             SelectFootballer,
@@ -906,178 +687,98 @@ local function renderCardOption(card: any)
             return
         end
 
-        if typeof(response) ~= "table" or response.Ok ~= true then
-            setStatusText(response and response.Error or "Failed to select player.")
+        if typeof(response) ~= "table"
+            or response.Ok ~= true
+        then
+            setStatusText(
+                response and response.Error
+                    or "Selection failed."
+            )
             return
         end
 
-        local data = response.Data
-        renderProfile(data.Profile)
-        currentDraft = data.Draft
-
-        if currentDraft and currentDraft.IsComplete then
-            setStatusText("Draft complete! Your full XI is now built.")
-        else
-            setStatusText(string.format("%s selected successfully.", data.Selected.DisplayName))
-        end
-
-        -- Re-render after selection.
-        task.defer(function()
-            local draft = currentDraft
-            if not draft then
-                return
-            end
-
-            local formation = Formations[draft.FormationId]
-            if not formation then
-                return
-            end
-
-            clearPitchSlots()
-
-            for index, slotInfo in ipairs(draft.Slots) do
-                local formationSlot = formation.Slots[index]
-                local isActive = (draft.ActiveSlotKey == slotInfo.SlotKey)
-                createPitchSlot(slotInfo, formationSlot, isActive)
-            end
-
-            clearOptions()
-
-            if draft.IsComplete then
-                currentPickCardHost:ClearAllChildren()
-                addCorner(currentPickCardHost, 14)
-
-                create("TextLabel", {
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 1, 0),
-                    Font = Enum.Font.GothamBlack,
-                    Text = "DRAFT COMPLETE",
-                    TextColor3 = Color3.fromRGB(255, 255, 255),
-                    TextSize = 28,
-                }, currentPickCardHost)
-
-                optionsSubheader.Text = "Your XI is complete. Start another draft whenever you're ready."
-                actionButton.Text = string.format("START NEW DRAFT — %d COINS", GameConfig.DraftCost)
-                return
-            end
-
-            actionButton.Text = "DRAFT IN PROGRESS"
-            optionsSubheader.Text = string.format(
-                "Pick %d of %d • currently drafting %s",
-                draft.CurrentPickIndex,
-                draft.TotalPicks,
-                draft.ActiveSlotLabel or "slot"
-            )
-
-            createCurrentPickCard(draft.ActiveSlotLabel or "Unknown", draft.ActivePosition or "Unknown")
-
-            for _, option in ipairs(draft.CurrentOptions) do
-                renderCardOption(option)
-            end
-
-            updateScrollerCanvas()
-        end)
+        renderProfile(response.Data.Profile)
+        renderDraft(response.Data.Draft)
     end)
 end
 
-local function renderDraft(draft: any)
+local renderDraft: (any) -> ()
+
+renderDraft = function(draft: any)
     currentDraft = draft
 
     if not draft then
-        clearPitchSlots()
+        renderEmptyFormation()
         clearOptions()
-        currentPickCardHost:ClearAllChildren()
-        addCorner(currentPickCardHost, 14)
 
-        create("TextLabel", {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 1, 0),
-            Font = Enum.Font.GothamBold,
-            Text = "No draft active",
-            TextColor3 = Color3.fromRGB(186, 198, 216),
-            TextSize = 18,
-            TextWrapped = true,
-        }, currentPickCardHost)
+        optionsHeader.Text = "START YOUR DRAFT"
+        optionsSubheader.Text =
+            "Choose a footballer for each position."
 
-        formationLabel.Text = "FORMATION: 4-3-3"
-        optionsSubheader.Text = "Choose one player card for the highlighted pitch slot."
-        actionButton.Text = string.format("START 11-PLAYER DRAFT — %d COINS", GameConfig.DraftCost)
+        actionButton.Text = string.format(
+            "START DRAFT — %d COINS",
+            GameConfig.DraftCost
+        )
+
         return
     end
 
     local formation = Formations[draft.FormationId]
+
     if not formation then
-        setStatusText("Formation data missing on client.")
+        setStatusText("Formation data is missing.")
         return
     end
 
-    formationLabel.Text = "FORMATION: " .. formation.Name
-
     clearPitchSlots()
+
     for index, slotInfo in ipairs(draft.Slots) do
         local formationSlot = formation.Slots[index]
-        local isActive = (draft.ActiveSlotKey == slotInfo.SlotKey)
-        createPitchSlot(slotInfo, formationSlot, isActive)
+
+        if formationSlot then
+            local isActive =
+                draft.ActiveSlotKey == slotInfo.SlotKey
+
+            createPitchSlot(
+                slotInfo,
+                formationSlot,
+                isActive
+            )
+        end
     end
 
     clearOptions()
 
     if draft.IsComplete then
-        createCurrentPickCard("Draft Complete", "XI Finished")
-        currentPickCardHost:ClearAllChildren()
-        addCorner(currentPickCardHost, 14)
+        optionsHeader.Text = "DRAFT COMPLETE"
+        optionsSubheader.Text =
+            "Your starting eleven is ready."
 
-        create("TextLabel", {
-            BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(0, 34),
-            Size = UDim2.new(1, 0, 0, 34),
-            Font = Enum.Font.GothamBlack,
-            Text = "DRAFT COMPLETE",
-            TextColor3 = Color3.fromRGB(255, 255, 255),
-            TextSize = 28,
-        }, currentPickCardHost)
+        actionButton.Text = string.format(
+            "START NEW DRAFT — %d COINS",
+            GameConfig.DraftCost
+        )
 
-        create("TextLabel", {
-            BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(18, 84),
-            Size = UDim2.new(1, -36, 0, 54),
-            Font = Enum.Font.Gotham,
-            Text = "Your full XI has been drafted and placed on the pitch.",
-            TextColor3 = Color3.fromRGB(188, 198, 216),
-            TextSize = 15,
-            TextWrapped = true,
-        }, currentPickCardHost)
-
-        optionsSubheader.Text = "Your XI is complete. Start another draft whenever you're ready."
-        actionButton.Text = string.format("START NEW DRAFT — %d COINS", GameConfig.DraftCost)
-        setStatusText("Draft complete! Your squad is ready.")
         return
     end
 
-    actionButton.Text = "DRAFT IN PROGRESS"
-
-    setStatusText(string.format(
-        "Pick %d of %d • drafting %s (%s)",
+    optionsHeader.Text = string.format(
+        "PICK %d OF %d — %s",
         draft.CurrentPickIndex,
         draft.TotalPicks,
-        draft.ActiveSlotLabel or "slot",
-        draft.ActivePosition or "position"
-    ))
-
-    optionsSubheader.Text = string.format(
-        "Pick %d of %d • currently drafting %s",
-        draft.CurrentPickIndex,
-        draft.TotalPicks,
-        draft.ActiveSlotLabel or "slot"
+        draft.ActiveSlotLabel or "POSITION"
     )
 
-    createCurrentPickCard(draft.ActiveSlotLabel or "Unknown", draft.ActivePosition or "Unknown")
+    optionsSubheader.Text = string.format(
+        "Choose a %s for the highlighted slot.",
+        draft.ActivePosition or "player"
+    )
+
+    actionButton.Text = "DRAFT IN PROGRESS"
 
     for _, option in ipairs(draft.CurrentOptions) do
         renderCardOption(option)
     end
-
-    updateScrollerCanvas()
 end
 
 actionButton.Activated:Connect(function()
